@@ -11,7 +11,7 @@ import { usePixelPlace } from "@/hooks/usePixelPlace";
 
 export default function Home() {
   const { publicKey } = useWallet();
-  const [selectedColor, setSelectedColor] = useState(1); // White default
+  const [selectedColor, setSelectedColor] = useState(1);
   const canvas = useCanvas();
   const ephemeral = useEphemeralKeypair();
   const { placePixel } = usePixelPlace();
@@ -21,11 +21,7 @@ export default function Home() {
   const handlePixelClick = useCallback(
     (x: number, y: number) => {
       if (!canDraw || !ephemeral.keypair || !publicKey) return;
-
-      // Optimistic update
       canvas.optimisticUpdate(x, y, selectedColor, publicKey.toBase58());
-
-      // Send tx to ER
       placePixel(x, y, selectedColor, ephemeral.keypair);
     },
     [canDraw, ephemeral.keypair, publicKey, selectedColor, canvas, placePixel]
@@ -40,11 +36,14 @@ export default function Home() {
         funding={ephemeral.funding}
         walletConnected={!!publicKey}
       />
-      <main className="pt-18 pb-8 flex flex-col items-center gap-5 px-4 min-h-screen">
+
+      <main className="pt-16 pb-12 flex flex-col items-center gap-4 px-4 min-h-screen justify-center">
         {!canvas.loaded ? (
-          <div className="flex flex-col items-center justify-center h-[640px] gap-4">
-            <div className="w-12 h-12 border-2 border-purple-500/30 border-t-purple-400 rounded-full animate-spin" />
-            <div className="text-white/40 text-sm">Loading canvas from ER...</div>
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-8 h-8 border border-[var(--border)] border-t-[var(--text-secondary)] rounded-full animate-spin" />
+            <p className="text-[13px] text-[var(--text-tertiary)] font-mono">
+              Connecting to ephemeral rollup...
+            </p>
           </div>
         ) : (
           <>
@@ -54,29 +53,31 @@ export default function Home() {
               onPixelClick={handlePixelClick}
               enabled={canDraw}
             />
+
             <ColorPalette
               selectedColor={selectedColor}
               onSelectColor={setSelectedColor}
             />
 
             {!publicKey && (
-              <div className="text-center text-white/30 text-sm mt-2 max-w-md">
-                Connect your wallet and click &quot;Start Drawing&quot; to place pixels
-              </div>
+              <p className="text-[13px] text-[var(--text-tertiary)] text-center max-w-sm leading-relaxed">
+                Connect a wallet to start placing pixels. Each placement is an
+                on-chain transaction on MagicBlock&apos;s Ephemeral Rollup.
+              </p>
             )}
 
-            <div className="text-center text-white/20 text-[11px] mt-4">
+            <footer className="mt-6 text-[11px] text-[var(--text-tertiary)] font-mono tracking-wide">
               Powered by{" "}
               <a
                 href="https://www.magicblock.gg/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-purple-400/40 hover:text-purple-400 transition-colors"
+                className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
               >
                 MagicBlock
               </a>{" "}
-              Ephemeral Rollups on Solana
-            </div>
+              on Solana
+            </footer>
           </>
         )}
       </main>

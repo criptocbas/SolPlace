@@ -26,42 +26,42 @@ export default function Header({
   walletConnected,
 }: HeaderProps) {
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-black/70 backdrop-blur-xl border-b border-white/[0.06]">
-      <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <h1 className="text-lg font-bold text-white tracking-tight">
-            Sol<span className="text-purple-400">Place</span>
+    <header className="fixed top-0 left-0 right-0 z-50 bg-[var(--bg)]/90 backdrop-blur-xl border-b border-[var(--border)]">
+      <div className="max-w-5xl mx-auto px-5 h-13 flex items-center justify-between">
+        <div className="flex items-center gap-5">
+          <h1 className="text-[15px] font-800 tracking-[-0.03em] text-[var(--text-primary)]">
+            SolPlace
           </h1>
-          <div className="hidden sm:flex items-center gap-2 text-xs text-white/40 bg-white/[0.04] px-3 py-1.5 rounded-full border border-white/[0.06]">
-            <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="font-mono">{pixelCount.toLocaleString()}</span>
-            <span>pixels placed</span>
+          <div className="hidden sm:flex items-center gap-1.5 font-mono text-[11px] text-[var(--text-secondary)]">
+            <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500" />
+            <span>{pixelCount.toLocaleString()} px</span>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           {walletConnected && !canDraw && (
             <button
               onClick={onStartDrawing}
               disabled={funding}
-              className="px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 disabled:from-purple-900 disabled:to-purple-800 disabled:cursor-wait text-white text-sm font-medium rounded-lg transition-all shadow-lg shadow-purple-600/20"
+              className="h-8 px-3.5 bg-[var(--accent)] hover:bg-[var(--accent-hover)] disabled:opacity-40 disabled:cursor-wait text-white text-[13px] font-600 rounded-lg transition-colors"
             >
               {funding ? "Funding..." : "Start Drawing"}
             </button>
           )}
           {canDraw && (
-            <div className="flex items-center gap-2 text-xs text-emerald-400 font-medium bg-emerald-400/10 px-3 py-1.5 rounded-full border border-emerald-400/20">
-              <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400" />
-              Drawing
+            <div className="flex items-center gap-1.5 text-[11px] text-emerald-400 font-mono">
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              ready
             </div>
           )}
           <WalletMultiButton
             style={{
-              backgroundColor: "rgba(139, 92, 246, 0.2)",
-              height: "36px",
+              backgroundColor: "var(--surface)",
+              height: "32px",
               fontSize: "13px",
               borderRadius: "8px",
-              border: "1px solid rgba(139, 92, 246, 0.15)",
+              border: "1px solid rgba(255,255,255,0.06)",
+              padding: "0 12px",
             }}
           />
         </div>

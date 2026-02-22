@@ -1,6 +1,6 @@
 "use client";
 
-import { PALETTE } from "@/lib/colors";
+import { PALETTE, PALETTE_NAMES } from "@/lib/colors";
 
 interface ColorPaletteProps {
   selectedColor: number;
@@ -12,22 +12,18 @@ export default function ColorPalette({
   onSelectColor,
 }: ColorPaletteProps) {
   return (
-    <div className="flex flex-wrap gap-1.5 justify-center max-w-[320px] bg-white/[0.03] rounded-xl p-3 border border-white/[0.06]">
+    <div className="flex items-center gap-1 p-1.5 bg-[var(--surface)] rounded-xl border border-[var(--border)]">
       {PALETTE.map((color, i) => (
         <button
           key={i}
           onClick={() => onSelectColor(i)}
-          className={`w-9 h-9 rounded-lg transition-all duration-100 ${
+          className={`w-7 h-7 rounded-md transition-all duration-100 ${
             selectedColor === i
-              ? "ring-2 ring-white ring-offset-2 ring-offset-[#06060a] scale-110"
-              : "hover:scale-105 border border-white/10"
+              ? "ring-1.5 ring-white/80 ring-offset-1 ring-offset-[var(--surface)] scale-115"
+              : "hover:scale-110 hover:brightness-110"
           }`}
-          style={{
-            backgroundColor: color,
-            boxShadow:
-              selectedColor === i ? `0 0 20px ${color}50` : undefined,
-          }}
-          title={`Color ${i}`}
+          style={{ backgroundColor: color }}
+          title={PALETTE_NAMES[i]}
         />
       ))}
     </div>
