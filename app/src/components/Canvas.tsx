@@ -9,6 +9,7 @@ interface CanvasProps {
   selectedColor: number;
   onPixelClick: (x: number, y: number) => void;
   enabled: boolean;
+  cooldown?: boolean;
 }
 
 export default function Canvas({
@@ -16,6 +17,7 @@ export default function Canvas({
   selectedColor,
   onPixelClick,
   enabled,
+  cooldown = false,
 }: CanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const prevPixelsRef = useRef<Uint8Array | null>(null);
@@ -180,7 +182,7 @@ export default function Canvas({
         width={CANVAS_WIDTH * PIXEL_SIZE}
         height={CANVAS_HEIGHT * PIXEL_SIZE}
         className={`rounded-lg canvas-wrap border border-[var(--border)] ${
-          enabled ? "cursor-crosshair" : "cursor-default opacity-60"
+          !enabled ? "cursor-default opacity-60" : cooldown ? "cursor-wait opacity-80" : "cursor-crosshair"
         }`}
         style={{ imageRendering: "pixelated" }}
         onClick={handleClick}

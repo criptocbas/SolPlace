@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import Header from "@/components/Header";
 import Canvas from "@/components/Canvas";
@@ -20,6 +20,17 @@ export default function Home() {
   const { placePixel } = usePixelPlace();
 
   const canDraw = !!publicKey && ephemeral.ready && !!ephemeral.keypair;
+
+  // Cooldown: prevent rapid clicks
+  const cooldownUntilRef = useRef(0);
+  const [isCoolingDown, setIsCoolingDown] = useState(false);
+  const cooldownTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (cooldownTimerRef.current) clearTimeout(cooldownTimerRef.current);
+    };
+  }, []);
 
   const downloadCanvas = useCallback(() => {
     const scale = 10;
@@ -45,8 +56,14 @@ export default function Home() {
   const handlePixelClick = useCallback(
     (x: number, y: number) => {
       if (!canDraw || !ephemeral.keypair || !publicKey) return;
+      if (Date.now() < cooldownUntilRef.current) return;
+
       canvas.optimisticUpdate(x, y, selectedColor, ephemeral.keypair.publicKey.toBase58());
       placePixel(x, y, selectedColor, ephemeral.keypair);
+
+      cooldownUntilRef.current = Date.now() + 500;
+      setIsCoolingDown(true);
+      cooldownTimerRef.current = setTimeout(() => setIsCoolingDown(false), 500);
     },
     [canDraw, ephemeral.keypair, publicKey, selectedColor, canvas, placePixel]
   );
@@ -78,6 +95,7 @@ export default function Home() {
                 selectedColor={selectedColor}
                 onPixelClick={handlePixelClick}
                 enabled={canDraw}
+                cooldown={isCoolingDown}
               />
 
               <div className="flex items-center gap-3">
