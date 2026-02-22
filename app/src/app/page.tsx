@@ -129,6 +129,30 @@ export default function Home() {
                 cooldown={isCoolingDown}
               />
               <ActivityFeed activity={canvas.activity} />
+
+              {!publicKey && (
+                <div className="absolute inset-0 z-20 flex items-center justify-center bg-[var(--bg)]/70 backdrop-blur-sm rounded-lg animate-[feed-panel-in_0.3s_ease-out]">
+                  <div className="text-center px-8 max-w-sm">
+                    <div className="text-3xl mb-3">
+                      <span className="inline-block w-4 h-4 rounded-sm bg-[#e84040] mr-1" />
+                      <span className="inline-block w-4 h-4 rounded-sm bg-[#40c463] mr-1" />
+                      <span className="inline-block w-4 h-4 rounded-sm bg-[#4078e8] mr-1" />
+                      <span className="inline-block w-4 h-4 rounded-sm bg-[#e8d44a]" />
+                    </div>
+                    <h2 className="text-[17px] font-700 text-[var(--text-primary)] mb-2">
+                      Place pixels on-chain
+                    </h2>
+                    <p className="text-[13px] text-[var(--text-secondary)] leading-relaxed mb-4">
+                      A shared 64x64 canvas where every pixel is a real Solana
+                      transaction — processed in under 50ms via MagicBlock
+                      Ephemeral Rollups.
+                    </p>
+                    <p className="text-[12px] text-[var(--text-tertiary)] font-mono">
+                      Connect a wallet to start drawing
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="flex items-center gap-3">
@@ -161,13 +185,6 @@ export default function Home() {
             {myPixelCount > 0 && (
               <p className="font-mono text-[12px] text-[var(--text-tertiary)]">
                 You placed <span className="text-[var(--accent)]">{myPixelCount}</span> pixel{myPixelCount !== 1 ? "s" : ""} this session
-              </p>
-            )}
-
-            {!publicKey && (
-              <p className="text-[13px] text-[var(--text-tertiary)] text-center max-w-sm leading-relaxed">
-                Connect a wallet to start placing pixels. Each placement is an
-                on-chain transaction on MagicBlock&apos;s Ephemeral Rollup.
               </p>
             )}
 
