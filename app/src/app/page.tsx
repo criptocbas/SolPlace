@@ -93,12 +93,11 @@ export default function Home() {
     // Download canvas PNG so user can attach it to the tweet
     downloadCanvas();
 
-    const text = "Placing pixels on-chain with SolPlace — a real-time collaborative canvas powered by @magicblock Ephemeral Rollups on @solana\n\n(canvas screenshot attached!)";
-    const url = typeof window !== "undefined" ? window.location.href : "https://solplace.app";
+    const text = "Placing pixels on-chain with SolPlace — a real-time collaborative canvas powered by @magicblock Ephemeral Rollups on @solana\n\n(canvas screenshot attached!)\n\nTry it here:\nhttps://solplace-phi.vercel.app/";
     // Small delay so the download triggers before the new tab opens
     setTimeout(() => {
       window.open(
-        `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
+        `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`,
         "_blank",
         "noopener,noreferrer"
       );
