@@ -74,14 +74,20 @@ export default function Home() {
   }, [canvas.pixels]);
 
   const shareToX = useCallback(() => {
-    const text = "Placing pixels on-chain with SolPlace — a real-time collaborative canvas powered by @magaborinmgby MagicBlock Ephemeral Rollups on @solana";
+    // Download canvas PNG so user can attach it to the tweet
+    downloadCanvas();
+
+    const text = "Placing pixels on-chain with SolPlace — a real-time collaborative canvas powered by @magicblock Ephemeral Rollups on @solana\n\n(canvas screenshot attached!)";
     const url = typeof window !== "undefined" ? window.location.href : "https://solplace.app";
-    window.open(
-      `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
-      "_blank",
-      "noopener,noreferrer"
-    );
-  }, []);
+    // Small delay so the download triggers before the new tab opens
+    setTimeout(() => {
+      window.open(
+        `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
+        "_blank",
+        "noopener,noreferrer"
+      );
+    }, 300);
+  }, [downloadCanvas]);
 
   const handlePixelClick = useCallback(
     (x: number, y: number) => {
