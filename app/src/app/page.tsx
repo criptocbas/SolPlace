@@ -104,7 +104,6 @@ export default function Home() {
     <>
       <Header
         pixelCount={canvas.pixelCount}
-        onStartDrawing={ephemeral.setup}
         canDraw={canDraw}
         funding={ephemeral.funding}
         walletConnected={!!publicKey}

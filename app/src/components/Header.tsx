@@ -25,7 +25,6 @@ const STATUS_TITLE: Record<ConnectionStatus, string> = {
 
 interface HeaderProps {
   pixelCount: number;
-  onStartDrawing: () => void;
   canDraw: boolean;
   funding: boolean;
   walletConnected: boolean;
@@ -34,7 +33,6 @@ interface HeaderProps {
 
 export default function Header({
   pixelCount,
-  onStartDrawing,
   canDraw,
   funding,
   walletConnected,
@@ -57,14 +55,11 @@ export default function Header({
         </div>
 
         <div className="flex items-center gap-2.5">
-          {walletConnected && !canDraw && (
-            <button
-              onClick={onStartDrawing}
-              disabled={funding}
-              className="h-8 px-3.5 bg-[var(--accent)] hover:bg-[var(--accent-hover)] disabled:opacity-40 disabled:cursor-wait text-white text-[13px] font-600 rounded-lg transition-colors"
-            >
-              {funding ? "Funding..." : "Start Drawing"}
-            </button>
+          {walletConnected && funding && (
+            <div className="flex items-center gap-1.5 text-[11px] text-[var(--text-tertiary)] font-mono">
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse" />
+              Setting up...
+            </div>
           )}
           {canDraw && (
             <div className="flex items-center gap-1.5 text-[11px] text-emerald-400 font-mono">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import {
   Keypair,
   LAMPORTS_PER_SOL,
@@ -17,6 +17,7 @@ export function useEphemeralKeypair() {
   const keypairRef = useRef<Keypair | null>(null);
   const [ready, setReady] = useState(false);
   const [funding, setFunding] = useState(false);
+  const attemptedRef = useRef<string | null>(null);
 
   const setup = useCallback(async () => {
     if (!publicKey) return;
@@ -49,6 +50,19 @@ export function useEphemeralKeypair() {
       setFunding(false);
     }
   }, [publicKey, connection, sendTransaction]);
+
+  // Auto-trigger setup when wallet connects
+  useEffect(() => {
+    if (!publicKey) {
+      attemptedRef.current = null;
+      return;
+    }
+    const key = publicKey.toBase58();
+    if (attemptedRef.current === key) return;
+    if (keypairRef.current) return;
+    attemptedRef.current = key;
+    setup();
+  }, [publicKey, setup]);
 
   return {
     keypair: keypairRef.current,
