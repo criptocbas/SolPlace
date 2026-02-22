@@ -8,6 +8,8 @@ const BASE_SIZE = CANVAS_WIDTH * PIXEL_SIZE; // 640
 const MIN_ZOOM = 1;
 const MAX_ZOOM = 5;
 const ZOOM_STEP = 0.5;
+const MINIMAP_SIZE = 120;
+const MINIMAP_PX = MINIMAP_SIZE / CANVAS_WIDTH; // px per pixel in minimap
 
 interface CanvasProps {
   pixels: Uint8Array;
@@ -25,6 +27,7 @@ export default function Canvas({
   cooldown = false,
 }: CanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const minimapRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const prevPixelsRef = useRef<Uint8Array | null>(null);
   const [hoverPos, setHoverPos] = useState<{ x: number; y: number } | null>(
@@ -32,6 +35,7 @@ export default function Canvas({
   );
   const flashesRef = useRef<Map<string, number>>(new Map());
   const [zoom, setZoom] = useState(1);
+  const scrollPosRef = useRef({ left: 0, top: 0 });
 
   const drawCanvas = useCallback(
     (ctx: CanvasRenderingContext2D, currentPixels: Uint8Array) => {
@@ -185,6 +189,92 @@ export default function Canvas({
     return () => container.removeEventListener("wheel", onWheel);
   }, []);
 
+  // Draw minimap whenever pixels change
+  useEffect(() => {
+    if (zoom <= 1) return;
+    const mc = minimapRef.current;
+    if (!mc) return;
+    const ctx = mc.getContext("2d");
+    if (!ctx) return;
+
+    // Draw pixels
+    for (let y = 0; y < CANVAS_HEIGHT; y++) {
+      for (let x = 0; x < CANVAS_WIDTH; x++) {
+        ctx.fillStyle = PALETTE[pixels[y * CANVAS_WIDTH + x]] || PALETTE[0];
+        ctx.fillRect(x * MINIMAP_PX, y * MINIMAP_PX, MINIMAP_PX, MINIMAP_PX);
+      }
+    }
+
+    // Viewport rectangle
+    const container = containerRef.current;
+    if (container) {
+      const totalW = BASE_SIZE * zoom;
+      const totalH = BASE_SIZE * zoom;
+      const vx = (scrollPosRef.current.left / totalW) * MINIMAP_SIZE;
+      const vy = (scrollPosRef.current.top / totalH) * MINIMAP_SIZE;
+      const vw = (container.clientWidth / totalW) * MINIMAP_SIZE;
+      const vh = (container.clientHeight / totalH) * MINIMAP_SIZE;
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.8)";
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(vx + 0.5, vy + 0.5, vw, vh);
+    }
+  }, [pixels, zoom]);
+
+  // Track scroll position for minimap viewport
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const onScroll = () => {
+      scrollPosRef.current = { left: container.scrollLeft, top: container.scrollTop };
+      // Redraw minimap viewport
+      const mc = minimapRef.current;
+      if (!mc || zoom <= 1) return;
+      const ctx = mc.getContext("2d");
+      if (!ctx) return;
+
+      // Redraw pixels (fast enough at 120x120)
+      for (let y = 0; y < CANVAS_HEIGHT; y++) {
+        for (let x = 0; x < CANVAS_WIDTH; x++) {
+          ctx.fillStyle = PALETTE[pixels[y * CANVAS_WIDTH + x]] || PALETTE[0];
+          ctx.fillRect(x * MINIMAP_PX, y * MINIMAP_PX, MINIMAP_PX, MINIMAP_PX);
+        }
+      }
+
+      const totalW = BASE_SIZE * zoom;
+      const totalH = BASE_SIZE * zoom;
+      const vx = (container.scrollLeft / totalW) * MINIMAP_SIZE;
+      const vy = (container.scrollTop / totalH) * MINIMAP_SIZE;
+      const vw = (container.clientWidth / totalW) * MINIMAP_SIZE;
+      const vh = (container.clientHeight / totalH) * MINIMAP_SIZE;
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.8)";
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(vx + 0.5, vy + 0.5, vw, vh);
+    };
+
+    container.addEventListener("scroll", onScroll, { passive: true });
+    return () => container.removeEventListener("scroll", onScroll);
+  }, [pixels, zoom]);
+
+  // Minimap click to navigate
+  const handleMinimapClick = useCallback(
+    (e: React.MouseEvent<HTMLCanvasElement>) => {
+      const container = containerRef.current;
+      if (!container) return;
+      const rect = e.currentTarget.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+      // Convert minimap coords to content coords, center viewport there
+      const totalW = BASE_SIZE * zoom;
+      const totalH = BASE_SIZE * zoom;
+      const targetX = (mx / MINIMAP_SIZE) * totalW - container.clientWidth / 2;
+      const targetY = (my / MINIMAP_SIZE) * totalH - container.clientHeight / 2;
+      container.scrollLeft = Math.max(0, targetX);
+      container.scrollTop = Math.max(0, targetY);
+    },
+    [zoom]
+  );
+
   const getPixelCoords = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement>) => {
       const canvas = canvasRef.current;
@@ -265,6 +355,16 @@ export default function Canvas({
           onMouseLeave={handleLeave}
         />
       </div>
+      {zoom > 1 && (
+        <canvas
+          ref={minimapRef}
+          width={MINIMAP_SIZE}
+          height={MINIMAP_SIZE}
+          onClick={handleMinimapClick}
+          className="absolute top-3 left-3 z-10 rounded border border-[var(--border)] cursor-pointer shadow-lg shadow-black/40"
+          style={{ width: MINIMAP_SIZE, height: MINIMAP_SIZE, imageRendering: "pixelated" }}
+        />
+      )}
       {hoverPos && (
         <div className="absolute bottom-2 right-2 font-mono text-[10px] text-[var(--text-secondary)] bg-[var(--bg)]/90 backdrop-blur-sm px-2 py-0.5 rounded border border-[var(--border)]">
           {hoverPos.x},{hoverPos.y}
