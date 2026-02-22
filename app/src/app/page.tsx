@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import Header from "@/components/Header";
 import Canvas from "@/components/Canvas";
@@ -9,6 +9,8 @@ import ActivityFeed from "@/components/ActivityFeed";
 import { useCanvas } from "@/hooks/useCanvas";
 import { useEphemeralKeypair } from "@/hooks/useEphemeralKeypair";
 import { usePixelPlace } from "@/hooks/usePixelPlace";
+import { PALETTE } from "@/lib/colors";
+import { CANVAS_WIDTH, CANVAS_HEIGHT } from "@/lib/constants";
 
 export default function Home() {
   const { publicKey } = useWallet();
@@ -18,6 +20,27 @@ export default function Home() {
   const { placePixel } = usePixelPlace();
 
   const canDraw = !!publicKey && ephemeral.ready && !!ephemeral.keypair;
+
+  const downloadCanvas = useCallback(() => {
+    const scale = 10;
+    const offscreen = document.createElement("canvas");
+    offscreen.width = CANVAS_WIDTH * scale;
+    offscreen.height = CANVAS_HEIGHT * scale;
+    const ctx = offscreen.getContext("2d");
+    if (!ctx) return;
+
+    for (let y = 0; y < CANVAS_HEIGHT; y++) {
+      for (let x = 0; x < CANVAS_WIDTH; x++) {
+        ctx.fillStyle = PALETTE[canvas.pixels[y * CANVAS_WIDTH + x]] || PALETTE[0];
+        ctx.fillRect(x * scale, y * scale, scale, scale);
+      }
+    }
+
+    const link = document.createElement("a");
+    link.download = `solplace-${Date.now()}.png`;
+    link.href = offscreen.toDataURL("image/png");
+    link.click();
+  }, [canvas.pixels]);
 
   const handlePixelClick = useCallback(
     (x: number, y: number) => {
@@ -57,10 +80,22 @@ export default function Home() {
                 enabled={canDraw}
               />
 
-              <ColorPalette
-                selectedColor={selectedColor}
-                onSelectColor={setSelectedColor}
-              />
+              <div className="flex items-center gap-3">
+                <ColorPalette
+                  selectedColor={selectedColor}
+                  onSelectColor={setSelectedColor}
+                />
+
+                <button
+                  onClick={downloadCanvas}
+                  title="Download canvas as PNG"
+                  className="w-9 h-9 flex items-center justify-center rounded-lg bg-[var(--surface)] border border-[var(--border)] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:border-[rgba(255,255,255,0.1)] transition-all"
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M8 2v8m0 0l-3-3m3 3l3-3M3 12h10" />
+                  </svg>
+                </button>
+              </div>
 
               {!publicKey && (
                 <p className="text-[13px] text-[var(--text-tertiary)] text-center max-w-sm leading-relaxed">
