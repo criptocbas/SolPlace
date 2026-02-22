@@ -24,6 +24,22 @@ export default function Home() {
   const canDraw = !!publicKey && ephemeral.ready && !!ephemeral.keypair;
   const [myPixelCount, setMyPixelCount] = useState(0);
 
+  // Keyboard shortcuts for color selection
+  useEffect(() => {
+    const KEY_MAP: Record<string, number> = {
+      "1": 1, "2": 2, "3": 3, "4": 4, "5": 5,
+      "6": 6, "7": 7, "8": 8, "9": 9, "0": 0,
+      "q": 10, "w": 11, "e": 12, "r": 13, "t": 14, "y": 15,
+    };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      const color = KEY_MAP[e.key.toLowerCase()];
+      if (color !== undefined) setSelectedColor(color);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+
   // Subtle blip sound on pixel placement
   const audioCtxRef = useRef<AudioContext | null>(null);
   const playBlip = useCallback(() => {
