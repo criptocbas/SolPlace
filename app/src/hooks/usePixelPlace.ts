@@ -49,10 +49,14 @@ export function usePixelPlace() {
       tx.feePayer = keypair.publicKey;
       tx.sign(keypair);
 
-      // Fire and forget
+      // Fire and forget — silently ignore duplicates (same pixel clicked twice)
       erConnection
         .sendRawTransaction(tx.serialize(), { skipPreflight: true })
-        .catch((e) => console.error("place_pixel tx failed:", e));
+        .catch((e) => {
+          const msg = e?.message || "";
+          if (msg.includes("already been processed")) return;
+          console.warn("place_pixel tx failed:", msg);
+        });
     },
     []
   );
