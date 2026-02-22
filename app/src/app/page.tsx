@@ -9,6 +9,7 @@ import ActivityFeed from "@/components/ActivityFeed";
 import { useCanvas } from "@/hooks/useCanvas";
 import { useEphemeralKeypair } from "@/hooks/useEphemeralKeypair";
 import { usePixelPlace } from "@/hooks/usePixelPlace";
+import { useConnectionStatus } from "@/hooks/useConnectionStatus";
 import { PALETTE } from "@/lib/colors";
 import { CANVAS_WIDTH, CANVAS_HEIGHT } from "@/lib/constants";
 
@@ -18,6 +19,7 @@ export default function Home() {
   const canvas = useCanvas();
   const ephemeral = useEphemeralKeypair();
   const { placePixel } = usePixelPlace();
+  const connectionStatus = useConnectionStatus();
 
   const canDraw = !!publicKey && ephemeral.ready && !!ephemeral.keypair;
   const [myPixelCount, setMyPixelCount] = useState(0);
@@ -88,6 +90,7 @@ export default function Home() {
         canDraw={canDraw}
         funding={ephemeral.funding}
         walletConnected={!!publicKey}
+        connectionStatus={connectionStatus}
       />
 
       <main className="pt-16 pb-12 px-4 min-h-screen">
