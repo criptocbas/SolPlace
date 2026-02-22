@@ -4,6 +4,8 @@ Real-time collaborative pixel canvas on Solana. Every pixel is an on-chain trans
 
 Inspired by Reddit's r/place — but fully on-chain and verifiable.
 
+**Try it live:** [solplace-phi.vercel.app](https://solplace-phi.vercel.app/)
+
 ![Solana](https://img.shields.io/badge/Solana-Devnet-9945FF?logo=solana&logoColor=white)
 ![MagicBlock](https://img.shields.io/badge/MagicBlock-Ephemeral%20Rollups-00D18C)
 ![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)
@@ -42,10 +44,15 @@ The canvas account is created on Solana L1, then **delegated** to an Ephemeral R
 
 **UX Polish**
 - Canvas zoom (1-5x) with scroll wheel + cursor-centered pan
+- Minimap overlay when zoomed for quick navigation
+- Keyboard shortcuts for color selection (1-9, 0, Q-Y)
+- Audio feedback — subtle blip sound on each placement
+- Auto-start drawing on wallet connect (no extra clicks)
+- Onboarding overlay for new/disconnected users
 - 500ms cooldown indicator between placements
 - Session pixel counter
-- Download canvas as PNG
-- Share to X (Twitter)
+- Download canvas as high-res PNG
+- Share to X (Twitter) with auto-downloaded screenshot
 - Connection status indicator (green/red/yellow dot)
 - Optimistic updates with flash effects on remote changes
 - Dark theme with subtle noise texture
@@ -156,8 +163,8 @@ ER: undelegate_canvas()  -->  Final commit + return to L1
 ## User Flow
 
 1. **Connect wallet** — select Phantom, Backpack, etc.
-2. **Click "Start Drawing"** — generates an ephemeral keypair and funds it with 0.01 SOL (one wallet popup)
-3. **Pick a color** — 16-color palette
+2. **Auto-setup** — an ephemeral keypair is generated and funded with 0.01 SOL automatically (one wallet popup)
+3. **Pick a color** — 16-color palette or keyboard shortcuts (1-9, 0, Q-Y)
 4. **Click pixels** — each click sends a `place_pixel` tx to the ER, signed by the ephemeral keypair (no popups)
 5. **See changes** — all clients update in real-time via WebSocket
 
