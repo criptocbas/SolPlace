@@ -20,6 +20,7 @@ export default function Home() {
   const { placePixel } = usePixelPlace();
 
   const canDraw = !!publicKey && ephemeral.ready && !!ephemeral.keypair;
+  const [myPixelCount, setMyPixelCount] = useState(0);
 
   // Cooldown: prevent rapid clicks
   const cooldownUntilRef = useRef(0);
@@ -60,6 +61,7 @@ export default function Home() {
 
       canvas.optimisticUpdate(x, y, selectedColor, ephemeral.keypair.publicKey.toBase58());
       placePixel(x, y, selectedColor, ephemeral.keypair);
+      setMyPixelCount((c) => c + 1);
 
       cooldownUntilRef.current = Date.now() + 500;
       setIsCoolingDown(true);
@@ -114,6 +116,12 @@ export default function Home() {
                   </svg>
                 </button>
               </div>
+
+              {myPixelCount > 0 && (
+                <p className="font-mono text-[12px] text-[var(--text-tertiary)]">
+                  You placed <span className="text-[var(--accent)]">{myPixelCount}</span> pixel{myPixelCount !== 1 ? "s" : ""} this session
+                </p>
+              )}
 
               {!publicKey && (
                 <p className="text-[13px] text-[var(--text-tertiary)] text-center max-w-sm leading-relaxed">
