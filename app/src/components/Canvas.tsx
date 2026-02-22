@@ -4,6 +4,11 @@ import { useRef, useEffect, useCallback, useState } from "react";
 import { CANVAS_WIDTH, CANVAS_HEIGHT, PIXEL_SIZE } from "@/lib/constants";
 import { PALETTE } from "@/lib/colors";
 
+const BASE_SIZE = CANVAS_WIDTH * PIXEL_SIZE; // 640
+const MIN_ZOOM = 1;
+const MAX_ZOOM = 5;
+const ZOOM_STEP = 0.5;
+
 interface CanvasProps {
   pixels: Uint8Array;
   selectedColor: number;
@@ -20,11 +25,13 @@ export default function Canvas({
   cooldown = false,
 }: CanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const prevPixelsRef = useRef<Uint8Array | null>(null);
   const [hoverPos, setHoverPos] = useState<{ x: number; y: number } | null>(
     null
   );
   const flashesRef = useRef<Map<string, number>>(new Map());
+  const [zoom, setZoom] = useState(1);
 
   const drawCanvas = useCallback(
     (ctx: CanvasRenderingContext2D, currentPixels: Uint8Array) => {
@@ -141,6 +148,43 @@ export default function Canvas({
     }
   }, [pixels, hoverPos, selectedColor, enabled, drawCanvas]);
 
+  // Wheel zoom with cursor-centered scroll
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+
+      const rect = container.getBoundingClientRect();
+      // Cursor position relative to the visible container
+      const cursorX = e.clientX - rect.left;
+      const cursorY = e.clientY - rect.top;
+
+      setZoom((prev) => {
+        const direction = e.deltaY < 0 ? 1 : -1;
+        const next = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, prev + direction * ZOOM_STEP));
+        if (next === prev) return prev;
+
+        // Schedule scroll adjustment after React renders the new size
+        requestAnimationFrame(() => {
+          // Position in content space the cursor was pointing at
+          const contentX = container.scrollLeft + cursorX;
+          const contentY = container.scrollTop + cursorY;
+          // Scale that position to the new zoom level
+          const scale = next / prev;
+          container.scrollLeft = contentX * scale - cursorX;
+          container.scrollTop = contentY * scale - cursorY;
+        });
+
+        return next;
+      });
+    };
+
+    container.addEventListener("wheel", onWheel, { passive: false });
+    return () => container.removeEventListener("wheel", onWheel);
+  }, []);
+
   const getPixelCoords = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement>) => {
       const canvas = canvasRef.current;
@@ -175,20 +219,52 @@ export default function Canvas({
 
   const handleLeave = useCallback(() => setHoverPos(null), []);
 
+  const resetZoom = useCallback(() => {
+    setZoom(1);
+    const container = containerRef.current;
+    if (container) {
+      container.scrollLeft = 0;
+      container.scrollTop = 0;
+    }
+  }, []);
+
+  const canvasStyle = zoom > 1
+    ? { width: BASE_SIZE * zoom, height: BASE_SIZE * zoom, imageRendering: "pixelated" as const }
+    : { imageRendering: "pixelated" as const };
+
   return (
     <div className="canvas-container relative">
-      <canvas
-        ref={canvasRef}
-        width={CANVAS_WIDTH * PIXEL_SIZE}
-        height={CANVAS_HEIGHT * PIXEL_SIZE}
-        className={`rounded-lg canvas-wrap border border-[var(--border)] ${
-          !enabled ? "cursor-default opacity-60" : cooldown ? "cursor-wait opacity-80" : "cursor-crosshair"
-        }`}
-        style={{ imageRendering: "pixelated" }}
-        onClick={handleClick}
-        onMouseMove={handleMove}
-        onMouseLeave={handleLeave}
-      />
+      {zoom > 1 && (
+        <div className="flex items-center justify-between mb-2">
+          <span className="font-mono text-[11px] text-[var(--text-secondary)]">
+            {zoom}x zoom
+          </span>
+          <button
+            onClick={resetZoom}
+            className="font-mono text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors"
+          >
+            Reset
+          </button>
+        </div>
+      )}
+      <div
+        ref={containerRef}
+        className="canvas-zoom-container rounded-lg border border-[var(--border)] canvas-wrap overflow-auto"
+        style={{ maxWidth: BASE_SIZE, maxHeight: BASE_SIZE }}
+      >
+        <canvas
+          ref={canvasRef}
+          width={CANVAS_WIDTH * PIXEL_SIZE}
+          height={CANVAS_HEIGHT * PIXEL_SIZE}
+          className={
+            !enabled ? "cursor-default opacity-60" : cooldown ? "cursor-wait opacity-80" : "cursor-crosshair"
+          }
+          style={canvasStyle}
+          onClick={handleClick}
+          onMouseMove={handleMove}
+          onMouseLeave={handleLeave}
+        />
+      </div>
       {hoverPos && (
         <div className="absolute bottom-2 right-2 font-mono text-[10px] text-[var(--text-secondary)] bg-[var(--bg)]/90 backdrop-blur-sm px-2 py-0.5 rounded border border-[var(--border)]">
           {hoverPos.x},{hoverPos.y}

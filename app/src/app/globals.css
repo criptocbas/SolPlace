@@ -84,10 +84,34 @@ body::before {
   }
 }
 
+/* Zoom container scrollbar */
+.canvas-zoom-container::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.canvas-zoom-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.canvas-zoom-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.canvas-zoom-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.canvas-zoom-container {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+}
+
 /* Responsive canvas */
 @media (max-width: 680px) {
-  .canvas-container canvas {
-    width: calc(100vw - 32px) !important;
-    height: calc(100vw - 32px) !important;
+  .canvas-zoom-container {
+    max-width: calc(100vw - 32px) !important;
+    max-height: calc(100vw - 32px) !important;
   }
 }
