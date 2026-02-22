@@ -338,8 +338,12 @@ export default function Canvas({
         </div>
       )}
       <div
+        className="rounded-lg border border-[var(--border)] canvas-wrap overflow-hidden"
+        style={{ maxWidth: BASE_SIZE, maxHeight: BASE_SIZE }}
+      >
+      <div
         ref={containerRef}
-        className="canvas-zoom-container rounded-lg border border-[var(--border)] canvas-wrap overflow-auto"
+        className="canvas-zoom-container overflow-auto"
         style={{ maxWidth: BASE_SIZE, maxHeight: BASE_SIZE }}
       >
         <canvas
@@ -354,6 +358,7 @@ export default function Canvas({
           onMouseMove={handleMove}
           onMouseLeave={handleLeave}
         />
+      </div>
       </div>
       {zoom > 1 && (
         <canvas
