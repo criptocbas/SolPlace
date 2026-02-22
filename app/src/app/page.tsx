@@ -120,9 +120,8 @@ export default function Home() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6 max-w-[960px] mx-auto min-h-[calc(100vh-7rem)] items-start pt-6">
-            {/* Canvas column */}
-            <div className="flex flex-col items-center gap-4">
+          <div className="flex flex-col items-center gap-4 max-w-[680px] mx-auto pt-6">
+            <div className="relative">
               <Canvas
                 pixels={canvas.pixels}
                 selectedColor={selectedColor}
@@ -130,65 +129,61 @@ export default function Home() {
                 enabled={canDraw}
                 cooldown={isCoolingDown}
               />
-
-              <div className="flex items-center gap-3">
-                <ColorPalette
-                  selectedColor={selectedColor}
-                  onSelectColor={setSelectedColor}
-                />
-
-                <button
-                  onClick={downloadCanvas}
-                  title="Download canvas as PNG"
-                  className="w-9 h-9 flex items-center justify-center rounded-lg bg-[var(--surface)] border border-[var(--border)] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:border-[rgba(255,255,255,0.1)] transition-all"
-                >
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M8 2v8m0 0l-3-3m3 3l3-3M3 12h10" />
-                  </svg>
-                </button>
-
-                <button
-                  onClick={shareToX}
-                  title="Share to X"
-                  className="w-9 h-9 flex items-center justify-center rounded-lg bg-[var(--surface)] border border-[var(--border)] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:border-[rgba(255,255,255,0.1)] transition-all"
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                  </svg>
-                </button>
-              </div>
-
-              {myPixelCount > 0 && (
-                <p className="font-mono text-[12px] text-[var(--text-tertiary)]">
-                  You placed <span className="text-[var(--accent)]">{myPixelCount}</span> pixel{myPixelCount !== 1 ? "s" : ""} this session
-                </p>
-              )}
-
-              {!publicKey && (
-                <p className="text-[13px] text-[var(--text-tertiary)] text-center max-w-sm leading-relaxed">
-                  Connect a wallet to start placing pixels. Each placement is an
-                  on-chain transaction on MagicBlock&apos;s Ephemeral Rollup.
-                </p>
-              )}
-
-              <footer className="mt-6 text-[11px] text-[var(--text-tertiary)] font-mono tracking-wide">
-                Powered by{" "}
-                <a
-                  href="https://www.magicblock.gg/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
-                >
-                  MagicBlock
-                </a>{" "}
-                on Solana
-              </footer>
-            </div>
-
-            {/* Activity feed column */}
-            <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl h-[480px] lg:sticky lg:top-20 overflow-hidden">
               <ActivityFeed activity={canvas.activity} />
             </div>
+
+            <div className="flex items-center gap-3">
+              <ColorPalette
+                selectedColor={selectedColor}
+                onSelectColor={setSelectedColor}
+              />
+
+              <button
+                onClick={downloadCanvas}
+                title="Download canvas as PNG"
+                className="w-9 h-9 flex items-center justify-center rounded-lg bg-[var(--surface)] border border-[var(--border)] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:border-[rgba(255,255,255,0.1)] transition-all"
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M8 2v8m0 0l-3-3m3 3l3-3M3 12h10" />
+                </svg>
+              </button>
+
+              <button
+                onClick={shareToX}
+                title="Share to X"
+                className="w-9 h-9 flex items-center justify-center rounded-lg bg-[var(--surface)] border border-[var(--border)] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:border-[rgba(255,255,255,0.1)] transition-all"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                </svg>
+              </button>
+            </div>
+
+            {myPixelCount > 0 && (
+              <p className="font-mono text-[12px] text-[var(--text-tertiary)]">
+                You placed <span className="text-[var(--accent)]">{myPixelCount}</span> pixel{myPixelCount !== 1 ? "s" : ""} this session
+              </p>
+            )}
+
+            {!publicKey && (
+              <p className="text-[13px] text-[var(--text-tertiary)] text-center max-w-sm leading-relaxed">
+                Connect a wallet to start placing pixels. Each placement is an
+                on-chain transaction on MagicBlock&apos;s Ephemeral Rollup.
+              </p>
+            )}
+
+            <footer className="mt-6 text-[11px] text-[var(--text-tertiary)] font-mono tracking-wide">
+              Powered by{" "}
+              <a
+                href="https://www.magicblock.gg/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+              >
+                MagicBlock
+              </a>{" "}
+              on Solana
+            </footer>
           </div>
         )}
       </main>
