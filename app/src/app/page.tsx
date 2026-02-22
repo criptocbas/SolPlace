@@ -24,6 +24,23 @@ export default function Home() {
   const canDraw = !!publicKey && ephemeral.ready && !!ephemeral.keypair;
   const [myPixelCount, setMyPixelCount] = useState(0);
 
+  // Subtle blip sound on pixel placement
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const playBlip = useCallback(() => {
+    if (!audioCtxRef.current) audioCtxRef.current = new AudioContext();
+    const ctx = audioCtxRef.current;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(660, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.06);
+    gain.gain.setValueAtTime(0.08, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.1);
+  }, []);
+
   // Cooldown: prevent rapid clicks
   const cooldownUntilRef = useRef(0);
   const [isCoolingDown, setIsCoolingDown] = useState(false);
@@ -74,6 +91,7 @@ export default function Home() {
       canvas.optimisticUpdate(x, y, selectedColor, ephemeral.keypair.publicKey.toBase58());
       placePixel(x, y, selectedColor, ephemeral.keypair);
       setMyPixelCount((c) => c + 1);
+      playBlip();
 
       cooldownUntilRef.current = Date.now() + 500;
       setIsCoolingDown(true);
