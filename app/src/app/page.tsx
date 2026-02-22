@@ -54,6 +54,16 @@ export default function Home() {
     link.click();
   }, [canvas.pixels]);
 
+  const shareToX = useCallback(() => {
+    const text = "Placing pixels on-chain with SolPlace — a real-time collaborative canvas powered by @magaborinmgby MagicBlock Ephemeral Rollups on @solana";
+    const url = typeof window !== "undefined" ? window.location.href : "https://solplace.app";
+    window.open(
+      `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
+      "_blank",
+      "noopener,noreferrer"
+    );
+  }, []);
+
   const handlePixelClick = useCallback(
     (x: number, y: number) => {
       if (!canDraw || !ephemeral.keypair || !publicKey) return;
@@ -113,6 +123,16 @@ export default function Home() {
                 >
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M8 2v8m0 0l-3-3m3 3l3-3M3 12h10" />
+                  </svg>
+                </button>
+
+                <button
+                  onClick={shareToX}
+                  title="Share to X"
+                  className="w-9 h-9 flex items-center justify-center rounded-lg bg-[var(--surface)] border border-[var(--border)] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:border-[rgba(255,255,255,0.1)] transition-all"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                   </svg>
                 </button>
               </div>
